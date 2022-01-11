@@ -16,7 +16,7 @@ pub extern "C" fn grid_c_from_slice(data: *const f64, len: usize)
 
 #[no_mangle]
 pub extern "C" fn grid_c_destroy(grid: *mut Grid1D) {
-    unsafe { Box::from_raw(grid) };
+    drop(unsafe { Box::from_raw(grid) });
 }
 
 #[no_mangle]
