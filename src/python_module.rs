@@ -1,11 +1,23 @@
 use numpy::PyArray1;
-use pyo3::{exceptions::PyValueError, prelude::*};
+use pyo3::prelude::*;
+use pyo3::create_exception;
+use pyo3::exceptions::PyException;
 use crate::{Grid1D, GridError};
+
+create_exception!(staggrid, StaggridError, PyException);
+create_exception!(staggrid, SingularGridError, StaggridError);
+create_exception!(staggrid, NonMonotonicGridError, StaggridError);
 
 impl std::convert::From<GridError> for PyErr {
     fn from(err: GridError) -> Self {
-        // should try to mirror the existing errors
-        PyValueError::new_err(err.to_string())
+        match err {
+            GridError::SingularGrid => {
+                SingularGridError::new_err(err.to_string())
+            },
+            GridError::NonMonotonic => {
+                NonMonotonicGridError::new_err(err.to_string())
+            },
+        }
     }
 }
 
@@ -28,7 +40,10 @@ impl Grid1Dpy {
 }
 
 #[pymodule]
-fn staggrid(_py: Python<'_>, pymod: &PyModule) -> PyResult<()> {
+fn staggrid(py: Python<'_>, pymod: &PyModule) -> PyResult<()> {
     pymod.add_class::<Grid1Dpy>()?;
+    pymod.add("StaggridError", py.get_type::<StaggridError>())?;
+    pymod.add("SingularGridError", py.get_type::<SingularGridError>())?;
+    pymod.add("NonMonotonicGridError", py.get_type::<NonMonotonicGridError>())?;
     Ok(())
 }
