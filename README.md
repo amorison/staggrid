@@ -30,17 +30,18 @@ header file automatically.  Install it with:
 
     cargo install --force cbindgen
 
-An example of how to call the C API is provided in the `call_from_c/`
+Examples of how to call the C API are provided in the `tests_c_api/`
 directory.  You can build it with the following commands:
 
     # build the Rust crate and generate a header file
     $ cargo build
-    $ cbindgen --output call_from_c/staggrid.h --lang c
+    $ cbindgen --output tests_c_api/staggrid.h --lang c
 
-    # build the example
-    $ cd call_from_c
+    # build the tests
+    $ cd tests_c_api
     $ cmake -B build
     $ cmake --build build
 
-    # run the example
-    $ ./build/prgm
+    # run the tests
+    $ cd build
+    $ ctest build
