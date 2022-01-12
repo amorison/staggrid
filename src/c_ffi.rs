@@ -1,7 +1,7 @@
 use crate::Grid1D;
 
 #[no_mangle]
-pub extern "C" fn grid_c_from_slice(data: *const f64, len: usize)
+pub unsafe extern "C" fn grid_c_from_slice(data: *const f64, len: usize)
     -> *mut Grid1D
 {
     let slc = unsafe { std::slice::from_raw_parts(data, len) };
@@ -15,12 +15,12 @@ pub extern "C" fn grid_c_from_slice(data: *const f64, len: usize)
 }
 
 #[no_mangle]
-pub extern "C" fn grid_c_destroy(grid: *mut Grid1D) {
+pub unsafe extern "C" fn grid_c_destroy(grid: *mut Grid1D) {
     drop(unsafe { Box::from_raw(grid) });
 }
 
 #[no_mangle]
-pub extern "C" fn grid_c_span(grid: *mut Grid1D) -> f64 {
+pub unsafe extern "C" fn grid_c_span(grid: *mut Grid1D) -> f64 {
     let grid = unsafe { Box::from_raw(grid) };
     let span = grid.span();
     Box::leak(grid);

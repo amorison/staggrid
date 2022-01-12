@@ -1,3 +1,5 @@
+#![deny(unsafe_op_in_unsafe_fn)]
+
 use ndarray::{Array1,ArrayView1};
 use thiserror::Error;
 
