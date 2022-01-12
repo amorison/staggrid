@@ -40,4 +40,6 @@ impl Grid1D {
 mod python_module;
 
 mod c_ffi;
+
+#[cfg(test)]
 mod tests;
