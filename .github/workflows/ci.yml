@@ -33,14 +33,13 @@ jobs:
       run: |
         cbindgen --output tests_c_api/staggrid.h --lang c
     - name: Build C tests
+      working-directory: tests_c_api
       run: |
-        cd tests_c_api
         cmake -B build
         cmake --build build
     - name: Run C tests
-      run: |
-        cd build
-        ctest
+      working-directory: tests_c_api/build
+      run: ctest
 
   python_api:
     strategy:
