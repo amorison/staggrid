@@ -31,7 +31,6 @@ jobs:
       run: cargo build --release
     - name: Generate header
       run: |
-        cargo install --force cbindgen
         cbindgen --output tests_c_api/staggrid.h --lang c
     - name: Build C tests
       run: |
