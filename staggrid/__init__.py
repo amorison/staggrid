@@ -3,4 +3,4 @@
 See https://github.com/amorison/staggrid for more information.
 """
 
-from .staggrid import *
+from .staggrid import Grid1D

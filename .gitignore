@@ -3,3 +3,6 @@ Cargo.lock
 
 /tests_c_api/build
 /tests_c_api/staggrid.h
+
+/.tox
+__pycache__/
