@@ -44,4 +44,4 @@ directory.  You can build it with the following commands:
 
     # run the tests
     $ cd build
-    $ ctest build
+    $ ctest
