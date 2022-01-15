@@ -60,4 +60,5 @@ jobs:
     - name: Install tox-gh
       run: python3 -m pip install tox-gh==0.0.4 tox==4.0.0a10
     - name: Run tests
+      working-directory: staggrid-py-api
       run: tox4 run

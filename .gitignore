@@ -4,5 +4,5 @@ Cargo.lock
 /staggrid-c-api/tests/build
 /staggrid-c-api/tests/staggrid.h
 
-/.tox
+/staggrid-py-api/.tox
 __pycache__/

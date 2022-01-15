@@ -16,7 +16,7 @@ Build the Python package
 
 You can install staggrid as any regular Python package:
 
-    $ python3 -m pip install .
+    $ python3 -m pip install ./staggrid-py-api
 
 and then import it in a Python script:
 
