@@ -36,8 +36,5 @@ impl Grid1D {
     }
 }
 
-#[cfg(feature = "python-ffi")]
-mod python_module;
-
 #[cfg(test)]
 mod tests;
