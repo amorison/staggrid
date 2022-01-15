@@ -33,12 +33,13 @@ header file automatically.  Install it with:
 Examples of how to call the C API are provided in the `tests_c_api/`
 directory.  You can build it with the following commands:
 
-    # build the Rust crate and generate a header file
-    $ cargo build
-    $ cbindgen --output tests_c_api/staggrid.h --lang c
+    # build the crate with C-api and generate a header file
+    $ cargo build -p staggrid-c-api
+    $ cd staggrid-c-api
+    $ cbindgen --output tests/staggrid.h
 
     # build the tests
-    $ cd tests_c_api
+    $ cd tests
     $ cmake -B build
     $ cmake --build build
 

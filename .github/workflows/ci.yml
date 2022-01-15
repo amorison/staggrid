@@ -28,17 +28,17 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build Rust lib
-      run: cargo build --release
+      run: cargo build -p staggrid-c-api --release
     - name: Generate header
-      run: |
-        cbindgen --output tests_c_api/staggrid.h --lang c
+      working-directory: staggrid-c-api
+      run: cbindgen --output tests/staggrid.h
     - name: Build C tests
-      working-directory: tests_c_api
+      working-directory: staggrid-c-api/tests
       run: |
         cmake -B build
         cmake --build build
     - name: Run C tests
-      working-directory: tests_c_api/build
+      working-directory: staggrid-c-api/tests/build
       run: ctest
 
   python_api:
