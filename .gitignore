@@ -1,8 +1,8 @@
 /target
 Cargo.lock
 
-/tests_c_api/build
-/tests_c_api/staggrid.h
+/staggrid-c-api/tests/build
+/staggrid-c-api/tests/staggrid.h
 
-/.tox
+/staggrid-py-api/.tox
 __pycache__/

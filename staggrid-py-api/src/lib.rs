@@ -2,20 +2,25 @@ use numpy::PyArray1;
 use pyo3::prelude::*;
 use pyo3::create_exception;
 use pyo3::exceptions::PyException;
-use crate::{Grid1D, GridError};
+use staggrid::{Grid1D, GridError};
 
 create_exception!(staggrid, StaggridError, PyException);
 create_exception!(staggrid, SingularGridError, StaggridError);
 create_exception!(staggrid, NonMonotonicGridError, StaggridError);
 
-impl std::convert::From<GridError> for PyErr {
-    fn from(err: GridError) -> Self {
-        match err {
-            GridError::SingularGrid => {
-                SingularGridError::new_err(err.to_string())
+trait IntoPyResult<T> {
+    fn into_py_result(self) -> PyResult<T>;
+}
+
+impl<T> IntoPyResult<T> for Result<T, GridError> {
+    fn into_py_result(self) -> PyResult<T> {
+        match self {
+            Ok(x) => Ok(x),
+            Err(err @ GridError::SingularGrid) => {
+                Err(SingularGridError::new_err(err.to_string()))
             },
-            GridError::NonMonotonic => {
-                NonMonotonicGridError::new_err(err.to_string())
+            Err(err @ GridError::NonMonotonic) => {
+                Err(NonMonotonicGridError::new_err(err.to_string()))
             },
         }
     }
@@ -30,7 +35,7 @@ impl Grid1Dpy {
     fn new(vals: &PyArray1<f64>) -> PyResult<Self> {
         let vals = vals.readonly();
         let vals = vals.as_slice()?;
-        let grid = Grid1D::from_slice(vals)?;
+        let grid = Grid1D::from_slice(vals).into_py_result()?;
         Ok(Grid1Dpy(grid))
     }
 

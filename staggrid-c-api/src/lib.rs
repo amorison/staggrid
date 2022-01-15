@@ -1,4 +1,6 @@
-use crate::Grid1D;
+#![deny(unsafe_op_in_unsafe_fn)]
+
+use staggrid::Grid1D;
 
 #[no_mangle]
 pub unsafe extern "C" fn grid_c_from_slice(data: *const f64, len: usize)

@@ -1,0 +1,20 @@
+[package]
+name = "staggrid-py-api"
+version = "0.1.0"
+authors = ["Adrien Morison"]
+edition = "2021"
+rust-version = "1.56"
+description = "Python API for the staggrid crate."
+readme = "README.md"
+repository = "https://github.com/amorison/staggrid"
+license = "Apache-2.0"
+categories = ["science", "mathematics"]
+
+[lib]
+name = "staggrid"
+crate-type = ["cdylib"]
+
+[dependencies]
+staggrid = { path = "..", version = "0.1.0" }
+numpy = "0.15.0"
+pyo3 = { version = "0.15.1", features = ["extension-module"] }

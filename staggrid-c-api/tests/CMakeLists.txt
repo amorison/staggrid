@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.18 FATAL_ERROR)
 
 project(staggrid_c_api LANGUAGES C)
 
-find_library(STAGGRID_LIB staggrid
-    PATHS "../target/release" "../target/debug"
+find_library(STAGGRID_LIB staggrid_c_api
+    PATHS "../../target/debug" "../../target/release"
     REQUIRED)
 
 add_executable(grid grid.c)
