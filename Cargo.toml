@@ -4,7 +4,7 @@ version = "0.1.0"
 authors = ["Adrien Morison"]
 edition = "2021"
 rust-version = "1.56"
-description = "Staggered grids management in Rust, Python, and C."
+description = "Staggered grids management for finite volume solvers."
 readme = "README.md"
 repository = "https://github.com/amorison/staggrid"
 license = "Apache-2.0"
@@ -21,3 +21,6 @@ pyo3 = { version = "0.15.1", features = ["extension-module"], optional = true }
 
 [features]
 python-ffi = ["numpy", "pyo3"]
+
+[workspace]
+members = ["staggrid-c-api"]
