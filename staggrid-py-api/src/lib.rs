@@ -8,21 +8,30 @@ create_exception!(staggrid, StaggridError, PyException);
 create_exception!(staggrid, SingularGridError, StaggridError);
 create_exception!(staggrid, NonMonotonicGridError, StaggridError);
 
+trait IntoPyErr {
+    fn into_py_err(self) -> PyErr;
+}
+
+impl IntoPyErr for GridError {
+    fn into_py_err(self) -> PyErr {
+        match self {
+            GridError::SingularGrid =>
+                SingularGridError::new_err(self.to_string()),
+            GridError::NonMonotonic =>
+                NonMonotonicGridError::new_err(self.to_string()),
+        }
+    }
+}
+
 trait IntoPyResult<T> {
     fn into_py_result(self) -> PyResult<T>;
 }
 
-impl<T> IntoPyResult<T> for Result<T, GridError> {
+impl<T, E> IntoPyResult<T> for Result<T, E>
+where E: IntoPyErr
+{
     fn into_py_result(self) -> PyResult<T> {
-        match self {
-            Ok(x) => Ok(x),
-            Err(err @ GridError::SingularGrid) => {
-                Err(SingularGridError::new_err(err.to_string()))
-            },
-            Err(err @ GridError::NonMonotonic) => {
-                Err(NonMonotonicGridError::new_err(err.to_string()))
-            },
-        }
+        self.map_err(IntoPyErr::into_py_err)
     }
 }
 
