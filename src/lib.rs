@@ -31,8 +31,58 @@ impl Grid1D {
         Grid1D::from_array(view.to_owned())
     }
 
+    pub fn first(&self) -> f64 {
+        *self.0.first().unwrap()
+    }
+
+    pub fn last(&self) -> f64 {
+        *self.0.last().unwrap()
+    }
+
     pub fn span(&self) -> f64 {
-        self.0.last().unwrap() - self.0.first().unwrap()
+        self.last() - self.first()
+    }
+
+    pub fn contains(&self, x: f64) -> bool {
+        x >= self.first() && x <= self.last()
+    }
+}
+
+#[derive(Error, Debug)]
+pub enum DomainError {
+    #[error("First bound should be smaller than last one.")]
+    InvalidBounds,
+}
+
+#[derive(Copy, Clone)]
+struct Bounds(f64, f64);
+
+impl TryFrom<(f64, f64)> for Bounds {
+    type Error = DomainError;
+
+    fn try_from(value: (f64, f64)) -> Result<Self, Self::Error> {
+        let (first, last) = value;
+        if first < last {
+            Ok(Bounds(first, last))
+        } else {
+            Err(DomainError::InvalidBounds)
+        }
+    }
+}
+
+impl Bounds {
+    fn is_in_grid(&self, grid: &Grid1D) -> bool {
+        grid.contains(self.0) && grid.contains(self.1)
+    }
+}
+
+pub struct Domain<const NDIM: usize> {
+    boundaries: [Bounds; NDIM],
+}
+
+impl<const NDIM: usize> Domain<NDIM> {
+    pub fn new(bounds: [(f64, f64); NDIM]) -> Result<Domain<NDIM>, DomainError> {
+        todo!()
     }
 }
 
