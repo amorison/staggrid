@@ -54,7 +54,7 @@ pub enum DomainError {
     InvalidBounds,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 struct Bounds(f64, f64);
 
 impl TryFrom<(f64, f64)> for Bounds {
@@ -82,7 +82,12 @@ pub struct Domain<const NDIM: usize> {
 
 impl<const NDIM: usize> Domain<NDIM> {
     pub fn new(bounds: [(f64, f64); NDIM]) -> Result<Domain<NDIM>, DomainError> {
-        todo!()
+        let mut boundaries: Vec<Bounds> = Vec::with_capacity(NDIM);
+        for b in bounds.into_iter() {
+            boundaries.push(b.try_into()?);
+        }
+        let boundaries: [Bounds; NDIM] = boundaries.try_into().unwrap();
+        Ok(Domain { boundaries })
     }
 }
 
