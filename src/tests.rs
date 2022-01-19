@@ -2,26 +2,31 @@ use ndarray::Array1;
 use crate::{Grid1D, GridError};
 
 #[test]
-fn grid_from_array() {
-    let arr = Array1::linspace(0., 1., 5);
-    let grid = Grid1D::from_array(arr).unwrap();
+fn grid_one_cell() {
+    let grid = Grid1D::new(1, 1, &[-0.5, 0., 0.5, 1., 1.5]).unwrap();
     assert_eq!(grid.span(), 1.);
 }
 
 #[test]
-fn grid_from_slice() {
-    let grid = Grid1D::from_slice(&[0., 0.5, 1.]).unwrap();
-    assert_eq!(grid.span(), 1.);
+fn grid_one_cell_with_gc() {
+    let grid = Grid1D::new(1, 2, &[0., 1., 2., 3., 4., 5.]).unwrap();
+    assert_eq!(grid.span(), 2.);
 }
 
 #[test]
 fn grid_singular() {
-    let grid = Grid1D::from_slice(&[0.]);
+    let grid = Grid1D::new(0, 0, &[]);
     assert!(matches!(grid, Err(GridError::SingularGrid)));
 }
 
 #[test]
+fn grid_not_enough_positions() {
+    let grid = Grid1D::new(1, 0, &[0.]);
+    assert!(matches!(grid, Err(GridError::MissingPositions)));
+}
+
+#[test]
 fn grid_non_monotonic() {
-    let grid = Grid1D::from_slice(&[0., 1., 0.5]);
+    let grid = Grid1D::new(1, 1, &[0., 1., 0.5, 2., 3.]);
     assert!(matches!(grid, Err(GridError::NonMonotonic)));
 }
