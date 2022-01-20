@@ -1,6 +1,6 @@
 #![deny(unsafe_op_in_unsafe_fn)]
 
-use ndarray::Array1;
+use ndarray::{Array1, ArrayView1, Slice};
 use thiserror::Error;
 
 pub struct Grid1D {
@@ -10,6 +10,11 @@ pub struct Grid1D {
     iupper_wall: usize,
     ilower_center: usize,
     iupper_center: usize,
+}
+
+pub enum Position {
+    Walls,
+    Centers,
 }
 
 #[derive(Error, Debug)]
@@ -52,6 +57,22 @@ impl Grid1D {
             ilower_wall, iupper_wall,
             ilower_center, iupper_center,
         })
+    }
+
+    pub fn at(&self, position: Position) -> ArrayView1<f64> {
+        match position {
+            Position::Walls => self.walls.view(),
+            Position::Centers => self.centers.view(),
+        }
+    }
+
+    pub fn bulk_slice_of(&self, position: Position) -> Slice {
+        match position {
+            Position::Walls =>
+                (self.ilower_wall..=self.iupper_wall).into(),
+            Position::Centers =>
+                (self.ilower_center..=self.iupper_center).into(),
+        }
     }
 
     pub fn span(&self) -> f64 {
