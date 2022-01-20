@@ -7,6 +7,7 @@ use staggrid::{Grid1D, GridError};
 create_exception!(staggrid, StaggridError, PyException);
 create_exception!(staggrid, SingularGridError, StaggridError);
 create_exception!(staggrid, NonMonotonicGridError, StaggridError);
+create_exception!(staggrid, MissingPositionsGridError, StaggridError);
 
 trait IntoPyErr {
     fn into_py_err(self) -> PyErr;
@@ -19,6 +20,8 @@ impl IntoPyErr for GridError {
                 SingularGridError::new_err(self.to_string()),
             GridError::NonMonotonic =>
                 NonMonotonicGridError::new_err(self.to_string()),
+            GridError::MissingPositions =>
+                MissingPositionsGridError::new_err(self.to_string()),
         }
     }
 }
@@ -41,10 +44,14 @@ struct Grid1Dpy(Grid1D);
 #[pymethods]
 impl Grid1Dpy {
     #[new]
-    fn new(vals: &PyArray1<f64>) -> PyResult<Self> {
-        let vals = vals.readonly();
-        let vals = vals.as_slice()?;
-        let grid = Grid1D::from_slice(vals).into_py_result()?;
+    fn new(
+        nbulk_cells: usize, ilower_wall: usize, positions: &PyArray1<f64>
+    ) -> PyResult<Self>
+    {
+        let positions = positions.readonly();
+        let positions = positions.as_slice()?;
+        let grid = Grid1D::new(nbulk_cells, ilower_wall, positions)
+            .into_py_result()?;
         Ok(Grid1Dpy(grid))
     }
 
@@ -58,6 +65,9 @@ fn staggrid(py: Python<'_>, pymod: &PyModule) -> PyResult<()> {
     pymod.add_class::<Grid1Dpy>()?;
     pymod.add("StaggridError", py.get_type::<StaggridError>())?;
     pymod.add("SingularGridError", py.get_type::<SingularGridError>())?;
-    pymod.add("NonMonotonicGridError", py.get_type::<NonMonotonicGridError>())?;
+    pymod.add("NonMonotonicGridError",
+              py.get_type::<NonMonotonicGridError>())?;
+    pymod.add("MissingPositionsGridError",
+              py.get_type::<MissingPositionsGridError>())?;
     Ok(())
 }
