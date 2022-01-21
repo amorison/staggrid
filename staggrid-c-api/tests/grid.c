@@ -10,9 +10,9 @@ void check(bool (*fn_ptr)(void), char* msg) {
     }
 }
 
-bool grid_from_slice() {
-    double xs[3] = {1.0, 1.5, 2.3};
-    struct Grid1D* grid = grid_c_from_slice(xs, 3);
+bool grid_create() {
+    double xs[5] = {-0.5, 0., 0.5, 1.0, 1.5};
+    struct Grid1D* grid = grid_c_create(1, 1, xs, 5);
     if (grid) {
         grid_c_destroy(grid);
         return true;
@@ -21,8 +21,8 @@ bool grid_from_slice() {
 }
 
 bool grid_invalid() {
-    double xs[3] = {1.0, 3.5, 2.3};
-    struct Grid1D* grid = grid_c_from_slice(xs, 3);
+    double xs[5] = {-0.5, 0., 0.5, 1.0};
+    struct Grid1D* grid = grid_c_create(1, 1, xs, 5);
     if (grid) {
         grid_c_destroy(grid);
         return false;
@@ -31,8 +31,8 @@ bool grid_invalid() {
 }
 
 bool grid_span() {
-    double xs[3] = {1.0, 1.5, 2.0};
-    struct Grid1D* grid = grid_c_from_slice(xs, 3);
+    double xs[5] = {-0.5, 0., 0.5, 1.0, 1.5};
+    struct Grid1D* grid = grid_c_create(1, 1, xs, 5);
     if (grid) {
         double span = grid_c_span(grid);
         grid_c_destroy(grid);
@@ -43,7 +43,7 @@ bool grid_span() {
 
 int main(void) {
 
-    check(&grid_from_slice, "grid_from_slice\0");
+    check(&grid_create, "grid_create\0");
     check(&grid_invalid, "grid_invalid\0");
     check(&grid_span, "grid_span\0");
 

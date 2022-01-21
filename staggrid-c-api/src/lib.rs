@@ -3,11 +3,13 @@
 use staggrid::Grid1D;
 
 #[no_mangle]
-pub unsafe extern "C" fn grid_c_from_slice(data: *const f64, len: usize)
-    -> *mut Grid1D
+pub unsafe extern "C" fn grid_c_create(
+    nbulk_cells: usize, ilower_wall: usize,
+    positions: *const f64, len_positions: usize,
+    ) -> *mut Grid1D
 {
-    let slc = unsafe { std::slice::from_raw_parts(data, len) };
-    match Grid1D::from_slice(slc) {
+    let slc = unsafe { std::slice::from_raw_parts(positions, len_positions) };
+    match Grid1D::new(nbulk_cells, ilower_wall, slc) {
         Ok(grid) => {
             let g = Box::new(grid);
             Box::into_raw(g)
