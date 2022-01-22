@@ -6,15 +6,21 @@ use staggrid::Grid1D;
 pub unsafe extern "C" fn grid_c_create(
     nbulk_cells: usize, ilower_wall: usize,
     positions: *const f64, len_positions: usize,
+    ierr: *mut i32,
     ) -> *mut Grid1D
 {
     let slc = unsafe { std::slice::from_raw_parts(positions, len_positions) };
+    let err_code = unsafe { ierr.as_mut() }.unwrap();
     match Grid1D::new(nbulk_cells, ilower_wall, slc) {
         Ok(grid) => {
+            *err_code = 0;
             let g = Box::new(grid);
             Box::into_raw(g)
         },
-        Err(_) => std::ptr::null_mut()
+        Err(e) => {
+            *err_code = e as i32 + 1;
+            std::ptr::null_mut()
+        }
     }
 }
 
