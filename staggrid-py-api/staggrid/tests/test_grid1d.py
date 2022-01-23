@@ -23,3 +23,22 @@ def test_grid_non_monotonic():
 def test_grid_missing_points():
     with pytest.raises(MissingPositionsGridError):
         Grid1D(1, 1, np.array([-0.5, 0., 0.5, 1.]))
+
+
+def test_grid_at_walls():
+    positions = np.array([-0.5, 0., 0.5, 1., 1.5])
+    grid = Grid1D(1, 1, positions)
+    assert np.all(grid.at("walls") == positions[1::2])
+
+
+def test_grid_at_centers():
+    positions = np.array([-0.5, 0., 0.5, 1., 1.5])
+    grid = Grid1D(1, 1, positions)
+    assert np.all(grid.at("centers") == positions[::2])
+
+
+def test_grid_at_invalid():
+    positions = np.array([-0.5, 0., 0.5, 1., 1.5])
+    grid = Grid1D(1, 1, positions)
+    with pytest.raises(ValueError):
+        grid.at("dummy")
