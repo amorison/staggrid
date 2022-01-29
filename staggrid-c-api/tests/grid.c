@@ -56,6 +56,7 @@ bool grid_at_walls() {
     if (!walls || ierr != 0 || length != 2) return false;
     bool check = walls[0] == 0. && walls[1] == 1.0;
     free(walls);
+    grid_c_destroy(grid);
     return check;
 }
 
@@ -69,6 +70,7 @@ bool grid_at_centers() {
     if (!centers || ierr != 0 || length != 3) return false;
     bool check = centers[0] == -0.5 && centers[1] == 0.5 && centers[2] == 1.5;
     free(centers);
+    grid_c_destroy(grid);
     return check;
 }
 
@@ -79,6 +81,7 @@ bool grid_at_invalid_position() {
     if (!grid) return false;
     uintptr_t length;
     double* centers = grid_c_at(grid, 2, &length, &ierr);
+    grid_c_destroy(grid);
     if (!centers && ierr == 1 && length == 0) return true;
     if (centers) free(centers);
     return false;
