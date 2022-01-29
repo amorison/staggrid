@@ -59,7 +59,6 @@ pub unsafe extern "C" fn grid_c_at(
     ierr: *mut i32,
     ) -> *mut f64
 {
-    let grid = unsafe { Box::from_raw(grid) };
     unsafe { *length = 0 };
     let position = match position_from_int(position) {
         Some(p) => p,
@@ -69,12 +68,14 @@ pub unsafe extern "C" fn grid_c_at(
         },
     };
 
+    let grid = unsafe { Box::from_raw(grid) };
     let values = grid.at(position);
 
     let ptr = unsafe {
         libc::malloc(std::mem::size_of::<f64>() * values.len())
     } as *mut f64;
     if ptr.is_null() {
+        Box::leak(grid);
         unsafe { *ierr = -1 };
         return ptr
     }
