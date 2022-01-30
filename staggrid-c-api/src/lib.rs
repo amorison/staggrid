@@ -1,6 +1,7 @@
 #![deny(unsafe_op_in_unsafe_fn)]
 
 use libc;
+use ndarray::ArrayView1;
 use staggrid::{Grid1D, Position};
 
 #[no_mangle]
@@ -49,6 +50,27 @@ fn position_from_int(int: u8) -> Option<Position> {
     }
 }
 
+fn copy_view_into_c_slice(arr: &ArrayView1<f64>) -> Option<(*mut f64, usize)> {
+    let len = arr.len();
+    let ptr = unsafe {
+        libc::malloc(std::mem::size_of::<f64>() * len)
+    } as *mut f64;
+    if ptr.is_null() {
+        return None
+    }
+    if arr.is_standard_layout() {
+        let src = arr.as_ptr();
+        unsafe {
+            ptr.copy_from_nonoverlapping(src, len);
+        }
+    } else {
+        for (i, &val) in arr.iter().enumerate() {
+            unsafe { *ptr.add(i) = val };
+        }
+    }
+    Some((ptr, len))
+}
+
 #[no_mangle]
 pub unsafe extern "C" fn grid_c_at(
     grid: *mut Grid1D,
@@ -69,17 +91,15 @@ pub unsafe extern "C" fn grid_c_at(
     let grid = unsafe { &*grid };
     let values = grid.at(position);
 
-    let ptr = unsafe {
-        libc::malloc(std::mem::size_of::<f64>() * values.len())
-    } as *mut f64;
-    if ptr.is_null() {
-        unsafe { *ierr = -1 };
-        return ptr
+    match copy_view_into_c_slice(&values) {
+        None => {
+            unsafe { *ierr = -1 };
+            std::ptr::null_mut()
+        },
+        Some((ptr, len)) => {
+            unsafe { *length = len };
+            unsafe { *ierr = 0 };
+            ptr
+        }
     }
-    for (i, &val) in values.iter().enumerate() {
-        unsafe { *ptr.add(i) = val };
-    }
-    unsafe { *length = values.len() };
-    unsafe { *ierr = 0 };
-    ptr
 }
