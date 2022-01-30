@@ -52,6 +52,13 @@ fn position_from_int(int: u8) -> Option<Position> {
 
 fn copy_view_into_c_slice(arr: &ArrayView1<f64>) -> Option<(*mut f64, usize)> {
     let len = arr.len();
+    if len == 0 {
+        // This is to always return None when the array is empty as malloc(0)
+        // behaviour is implementation defined and return either a null pointer
+        // (which would cause this function to return None) or a valid pointer
+        // (which would cause this function to return it).
+        return None
+    }
     let ptr = unsafe {
         libc::malloc(std::mem::size_of::<f64>() * len)
     } as *mut f64;
