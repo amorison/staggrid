@@ -16,15 +16,14 @@ pub unsafe extern "C" fn grid_c_create(
     ) -> *mut Grid1D
 {
     let slc = unsafe { std::slice::from_raw_parts(positions, len_positions) };
-    let err_code = unsafe { ierr.as_mut() }.unwrap();
     match Grid1D::new(nbulk_cells, ilower_wall, slc) {
         Ok(grid) => {
-            *err_code = 0;
+            unsafe { *ierr = 0 };
             let g = Box::new(grid);
             Box::into_raw(g)
         },
         Err(e) => {
-            *err_code = e as i32 + 1;
+            unsafe { *ierr = e as i32 + 1 };
             std::ptr::null_mut()
         }
     }
@@ -37,9 +36,8 @@ pub unsafe extern "C" fn grid_c_destroy(grid: *mut Grid1D) {
 
 #[no_mangle]
 pub unsafe extern "C" fn grid_c_span(grid: *mut Grid1D) -> f64 {
-    let grid = unsafe { Box::from_raw(grid) };
+    let grid = unsafe{ &*grid };
     let span = grid.span();
-    Box::leak(grid);
     span
 }
 
@@ -68,14 +66,13 @@ pub unsafe extern "C" fn grid_c_at(
         },
     };
 
-    let grid = unsafe { Box::from_raw(grid) };
+    let grid = unsafe { &*grid };
     let values = grid.at(position);
 
     let ptr = unsafe {
         libc::malloc(std::mem::size_of::<f64>() * values.len())
     } as *mut f64;
     if ptr.is_null() {
-        Box::leak(grid);
         unsafe { *ierr = -1 };
         return ptr
     }
@@ -84,6 +81,5 @@ pub unsafe extern "C" fn grid_c_at(
     }
     unsafe { *length = values.len() };
     unsafe { *ierr = 0 };
-    Box::leak(grid);
     ptr
 }
