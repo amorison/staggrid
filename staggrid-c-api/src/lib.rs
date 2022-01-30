@@ -1,6 +1,5 @@
 #![deny(unsafe_op_in_unsafe_fn)]
 
-use libc;
 use ndarray::ArrayView1;
 use staggrid::{Grid1D, Position};
 
@@ -38,8 +37,7 @@ pub unsafe extern "C" fn grid_c_destroy(grid: *mut Grid1D) {
 #[no_mangle]
 pub unsafe extern "C" fn grid_c_span(grid: *mut Grid1D) -> f64 {
     let grid = unsafe{ &*grid };
-    let span = grid.span();
-    span
+    grid.span()
 }
 
 fn position_from_int(int: u8) -> Option<Position> {
