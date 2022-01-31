@@ -1,6 +1,8 @@
 use ndarray::{Array1, ArrayView1, Slice};
 use thiserror::Error;
 
+/// This represents a 1D staggered grid with two families of points at
+/// [`Position::Walls`] and [`Position::Centers`].
 pub struct Grid1D {
     walls: Array1<f64>,
     centers: Array1<f64>,
@@ -10,11 +12,13 @@ pub struct Grid1D {
     iupper_center: usize,
 }
 
+/// The two families of points in a staggered grid.
 pub enum Position {
     Walls,
     Centers,
 }
 
+/// Errors encountered when creating or manipulating a [`Grid1D`].
 #[derive(Error, Debug)]
 pub enum GridError {
     #[error("Grids must span over at least 1 cell.")]
@@ -26,6 +30,11 @@ pub enum GridError {
 }
 
 impl Grid1D {
+    /// Create a [`Grid1D`] object.  `nbulk_cells` in the number of
+    /// cells in the grid excluding ghosts cells.  `positions` are
+    /// all the points (walls and centers) in the grid, in ascending
+    /// order.  `ilower_wall` is the index of the wall at the lower
+    /// boundary of the domain in the `positions` slice.
     pub fn new(
         nbulk_cells: usize, ilower_wall: usize, positions: &[f64]
     ) -> Result<Self, GridError>
@@ -57,6 +66,7 @@ impl Grid1D {
         })
     }
 
+    /// Return the grid points at a given [`Position`]
     pub fn at(&self, position: Position) -> ArrayView1<f64> {
         match position {
             Position::Walls => self.walls.view(),
@@ -64,6 +74,8 @@ impl Grid1D {
         }
     }
 
+    /// Return a [`Slice`] representing the part of the grid outside of the
+    /// bulk of the domain (i.e. with ghost points excluded).
     pub fn bulk_slice_of(&self, position: Position) -> Slice {
         match position {
             Position::Walls =>
@@ -73,6 +85,7 @@ impl Grid1D {
         }
     }
 
+    /// Width of the physical domain of the grid
     pub fn span(&self) -> f64 {
         self.walls[self.iupper_wall] - self.walls[self.ilower_wall]
     }
