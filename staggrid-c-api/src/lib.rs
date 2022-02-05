@@ -2,9 +2,9 @@
 
 use staggrid::{Grid1D, Position};
 
-mod raw_slice;
+pub mod raw_slice;
 
-pub use raw_slice::RawSlice;
+use raw_slice::RawSlice;
 
 /// C API equivalent of [`Position::Walls`]
 #[no_mangle]
@@ -94,8 +94,7 @@ fn position_from_int(int: u8) -> Option<Position> {
 /// Return the grid points at a given position.  See [`POSITION_WALLS`]
 /// and [`POSITION_CENTERS`].  This is the C API equivalent of [`Grid1D::at`].
 ///
-/// `ierr` is set to `1` if an invalid `position` was requested,
-/// and `-1` if `malloc` failed.
+/// `ierr` is set to `1` if an invalid `position` was requested.
 ///
 /// # Safety
 ///
@@ -121,13 +120,7 @@ pub unsafe extern "C" fn grid_c_at(
 
     let grid = unsafe { &*grid };
     let values = grid.at(position);
+    unsafe { *ierr = 0 };
 
-    let slc: RawSlice = values.into();
-    if slc.is_empty() {
-        unsafe { *ierr = -1 };
-    } else {
-        unsafe { *ierr = 0 };
-    }
-
-    slc
+    values.into()
 }

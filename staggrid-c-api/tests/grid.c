@@ -54,7 +54,7 @@ bool grid_at_walls() {
     RawSlice walls = grid_c_at(grid, POSITION_WALLS, &ierr);
     if (!walls.ptr || ierr != 0 || walls.len != 2) return false;
     bool check = walls.ptr[0] == 0. && walls.ptr[1] == 1.0;
-    free(walls.ptr);
+    raw_slice_c_nullify(&walls);
     grid_c_destroy(grid);
     return check;
 }
@@ -68,7 +68,7 @@ bool grid_at_centers() {
     if (!centers.ptr || ierr != 0 || centers.len != 3) return false;
     bool check = (centers.ptr[0] == -0.5 && centers.ptr[1] == 0.5
                   && centers.ptr[2] == 1.5);
-    free(centers.ptr);
+    raw_slice_c_nullify(&centers);
     grid_c_destroy(grid);
     return check;
 }
@@ -81,7 +81,7 @@ bool grid_at_invalid_position() {
     RawSlice centers = grid_c_at(grid, 2, &ierr);
     grid_c_destroy(grid);
     if (!centers.ptr && ierr == 1 && centers.len == 0) return true;
-    if (centers.ptr) free(centers.ptr);
+    if (centers.ptr) raw_slice_c_nullify(&centers);
     return false;
 }
 
