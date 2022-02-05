@@ -1,19 +1,3 @@
-//! This defines a convenience [`RawSlice`] struct to send dynamic arrays to C.
-//!
-//! # Memory
-//!
-//! By convention, arrays in this structure are `malloc`-allocated.  Conversion
-//! from Rust types is done by copying.  The caller (typically on the C-side)
-//! obtaining a [`RawSlice`] is responsible for `free()`-ing the memory the
-//! [`RawSlice`] points to.
-//!
-//! # Safety
-//!
-//! Many functions in this API are faillible.  The receiver of a [`RawSlice`]
-//! should therefore check that the pointer is not `NULL` before attempting
-//! to use it.  Note that to avoid discrepencies depending on the behaviour
-//! of `malloc(0)`, slices with a length of zero have a `NULL` pointer.
-
 use ndarray::ArrayView1;
 
 /// Raw `malloc`-allocated contiguous slice for consumption by C caller.
@@ -21,6 +5,28 @@ use ndarray::ArrayView1;
 /// It has two fields (accessible in C code, kept private on Rust side):
 /// - `ptr: double*`, the pointer to the first element of the slice;
 /// - `len: uintptr_t`, the length of the slice.
+///
+/// # Memory
+///
+/// By convention, arrays in this structure are `malloc`-allocated.  Conversion
+/// from Rust types is done by copying.  The caller (typically on the C-side)
+/// obtaining a [`RawSlice`] is responsible for `free()`-ing the memory the
+/// [`RawSlice`] points to.
+///
+/// # Safety
+///
+/// Many functions exposed to C in this crate are faillible.  The receiver of a
+/// [`RawSlice`] should therefore check that the pointer is not `NULL` before
+/// attempting to use it.  Note that to avoid discrepencies depending on the
+/// behaviour of `malloc(0)`, slices with a length of zero have a `NULL`
+/// pointer.
+///
+/// [`RawSlice`]s returned by the API are guaranteed to either:
+/// - have a non-null, initialized `ptr` valid for `len` reads;
+/// - have a null pointer with a `len` of `0`.
+///
+/// Calling code should never modify a [`RawSlice`] to avoid breaking these
+/// guarantees by mistake.
 #[repr(C)]
 pub struct RawSlice {
     ptr: *mut f64,

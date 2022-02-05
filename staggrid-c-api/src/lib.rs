@@ -2,9 +2,9 @@
 
 use staggrid::{Grid1D, Position};
 
-pub mod raw_slice;
+mod raw_slice;
 
-use raw_slice::RawSlice;
+pub use raw_slice::RawSlice;
 
 /// C API equivalent of [`Position::Walls`]
 #[no_mangle]
@@ -103,7 +103,7 @@ fn position_from_int(int: u8) -> Option<Position> {
 /// a pointer is typically obtained via [`grid_c_create`].  `ierr` should be
 /// non-null and aligned.
 ///
-/// See [`raw_slice`] for safety and memory considerations about [`RawSlice`].
+/// See [`RawSlice`] documentation for safety and memory considerations.
 #[no_mangle]
 pub unsafe extern "C" fn grid_c_at(
     grid: *mut Grid1D,
