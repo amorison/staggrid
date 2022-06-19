@@ -1,18 +1,26 @@
 #![deny(unsafe_op_in_unsafe_fn)]
 
-use staggrid::{Grid1D, Position};
+use staggrid::Grid1D;
 
 pub mod raw_slice;
 
 use raw_slice::RawSlice;
 
-/// C API equivalent of [`Position::Walls`]
-#[no_mangle]
-pub static POSITION_WALLS: u8 = 0;
+/// C API equivalent of [`staggrid::Position`]
+#[repr(C)]
+pub enum Position {
+    Walls,
+    Centers,
+}
 
-/// C API equivalent of [`Position::Centers`]
-#[no_mangle]
-pub static POSITION_CENTERS: u8 = 1;
+impl From<Position> for staggrid::Position {
+    fn from(pos: Position) -> Self {
+        match pos {
+            Position::Walls => staggrid::Position::Walls,
+            Position::Centers => staggrid::Position::Centers,
+        }
+    }
+}
 
 /// Obtain a raw pointer to a [`Grid1D`] object.  It is the C API equivalent
 /// of [`Grid1D::new`].
@@ -83,18 +91,8 @@ pub unsafe extern "C" fn grid_c_span(grid: *mut Grid1D) -> f64 {
     grid.span()
 }
 
-fn position_from_int(int: u8) -> Option<Position> {
-    match int {
-        0 => Some(Position::Walls),
-        1 => Some(Position::Centers),
-        _ => None,
-    }
-}
-
-/// Return the grid points at a given position.  See [`POSITION_WALLS`]
-/// and [`POSITION_CENTERS`].  This is the C API equivalent of [`Grid1D::at`].
-///
-/// `ierr` is set to `1` if an invalid `position` was requested.
+/// Return the grid points at a given [`Position`].  This is the C API
+/// equivalent of [`Grid1D::at`].
 ///
 /// # Safety
 ///
@@ -106,21 +104,10 @@ fn position_from_int(int: u8) -> Option<Position> {
 #[no_mangle]
 pub unsafe extern "C" fn grid_c_at(
     grid: *mut Grid1D,
-    position: u8,
-    ierr: *mut i32,
+    position: Position,
     ) -> RawSlice
 {
-    let position = match position_from_int(position) {
-        Some(p) => p,
-        None => {
-            unsafe { *ierr = 1 };
-            return RawSlice::empty();
-        },
-    };
-
     let grid = unsafe { &*grid };
-    let values = grid.at(position);
-    unsafe { *ierr = 0 };
-
+    let values = grid.at(position.into());
     values.into()
 }

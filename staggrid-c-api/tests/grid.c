@@ -51,7 +51,7 @@ bool grid_at_walls() {
     int ierr;
     struct Grid1D* grid = grid_c_create(1, 1, xs, 5, &ierr);
     if (!grid) return false;
-    RawSlice walls = grid_c_at(grid, POSITION_WALLS, &ierr);
+    RawSlice walls = grid_c_at(grid, Walls);
     if (!walls.ptr || ierr != 0 || walls.len != 2) return false;
     bool check = walls.ptr[0] == 0. && walls.ptr[1] == 1.0;
     raw_slice_c_nullify(&walls);
@@ -64,25 +64,13 @@ bool grid_at_centers() {
     int ierr;
     struct Grid1D* grid = grid_c_create(1, 1, xs, 5, &ierr);
     if (!grid) return false;
-    RawSlice centers = grid_c_at(grid, POSITION_CENTERS, &ierr);
+    RawSlice centers = grid_c_at(grid, Centers);
     if (!centers.ptr || ierr != 0 || centers.len != 3) return false;
     bool check = (centers.ptr[0] == -0.5 && centers.ptr[1] == 0.5
                   && centers.ptr[2] == 1.5);
     raw_slice_c_nullify(&centers);
     grid_c_destroy(grid);
     return check;
-}
-
-bool grid_at_invalid_position() {
-    double xs[5] = {-0.5, 0., 0.5, 1.0, 1.5};
-    int ierr;
-    struct Grid1D* grid = grid_c_create(1, 1, xs, 5, &ierr);
-    if (!grid) return false;
-    RawSlice centers = grid_c_at(grid, 2, &ierr);
-    grid_c_destroy(grid);
-    if (!centers.ptr && ierr == 1 && centers.len == 0) return true;
-    if (centers.ptr) raw_slice_c_nullify(&centers);
-    return false;
 }
 
 int main(void) {
@@ -92,7 +80,6 @@ int main(void) {
     check(&grid_span, "grid_span\0");
     check(&grid_at_walls, "grid_at_walls\0");
     check(&grid_at_centers, "grid_at_centers\0");
-    check(&grid_at_invalid_position, "grid_at_invalid_position\0");
 
     return !result;
 }
