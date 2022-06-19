@@ -1,6 +1,6 @@
 import pytest
 import numpy as np
-from staggrid import Grid1D
+from staggrid import Grid1D, Position
 from staggrid.error import (
     SingularGridError, NonMonotonicGridError, MissingPositionsGridError)
 
@@ -28,17 +28,10 @@ def test_grid_missing_points():
 def test_grid_at_walls():
     positions = np.array([-0.5, 0., 0.5, 1., 1.5])
     grid = Grid1D(1, 1, positions)
-    assert np.all(grid.at("walls") == positions[1::2])
+    assert np.all(grid.at(Position.Walls) == positions[1::2])
 
 
 def test_grid_at_centers():
     positions = np.array([-0.5, 0., 0.5, 1., 1.5])
     grid = Grid1D(1, 1, positions)
-    assert np.all(grid.at("centers") == positions[::2])
-
-
-def test_grid_at_invalid():
-    positions = np.array([-0.5, 0., 0.5, 1., 1.5])
-    grid = Grid1D(1, 1, positions)
-    with pytest.raises(ValueError):
-        grid.at("dummy")
+    assert np.all(grid.at(Position.Centers) == positions[::2])

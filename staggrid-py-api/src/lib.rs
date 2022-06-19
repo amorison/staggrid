@@ -1,10 +1,24 @@
 use numpy::PyArray1;
-use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::create_exception;
 use pyo3::exceptions::PyException;
-use pyo3::types::PyString;
-use staggrid::{Grid1D, Position, GridError};
+use staggrid::{Grid1D, GridError};
+
+#[pyclass]
+#[derive(Clone)]
+enum Position {
+    Centers,
+    Walls,
+}
+
+impl From<Position> for staggrid::Position {
+    fn from(position: Position) -> Self {
+        match position {
+            Position::Centers => staggrid::Position::Centers,
+            Position::Walls => staggrid::Position::Walls,
+        }
+    }
+}
 
 create_exception!(staggrid, StaggridError, PyException);
 create_exception!(staggrid, SingularGridError, StaggridError);
@@ -40,15 +54,6 @@ where E: IntoPyErr
     }
 }
 
-fn position_from_str(string: &PyString) -> PyResult<Position> {
-    match string.to_str()?.to_lowercase().as_str() {
-        "centers" => Ok(Position::Centers),
-        "walls" => Ok(Position::Walls),
-        s => Err(PyValueError::new_err(
-                format!("'{}' is an invalid position", s))),
-    }
-}
-
 #[pyclass(name="Grid1D")]
 struct Grid1Dpy(Grid1D);
 
@@ -66,10 +71,9 @@ impl Grid1Dpy {
         Ok(Grid1Dpy(grid))
     }
 
-    fn at<'py>(&self, py: Python<'py>, position: &PyString
+    fn at<'py>(&self, py: Python<'py>, position: Position
     ) -> PyResult<&'py PyArray1<f64>> {
-        let position = position_from_str(position)?;
-        let grid = self.0.at(position);
+        let grid = self.0.at(position.into());
         Ok(PyArray1::from_owned_array(py, grid.to_owned()))
     }
 
@@ -81,6 +85,7 @@ impl Grid1Dpy {
 #[pymodule]
 fn staggrid(py: Python<'_>, pymod: &PyModule) -> PyResult<()> {
     pymod.add_class::<Grid1Dpy>()?;
+    pymod.add_class::<Position>()?;
     pymod.add("StaggridError", py.get_type::<StaggridError>())?;
     pymod.add("SingularGridError", py.get_type::<SingularGridError>())?;
     pymod.add("NonMonotonicGridError",
