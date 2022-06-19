@@ -10,6 +10,9 @@ repository = "https://github.com/amorison/staggrid"
 license = "Apache-2.0"
 categories = ["science", "mathematics"]
 
+[package.metadata.maturin]
+python-source = "pysrc"
+
 [lib]
 name = "staggrid"
 crate-type = ["cdylib"]
