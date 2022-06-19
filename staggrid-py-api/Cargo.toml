@@ -16,5 +16,5 @@ crate-type = ["cdylib"]
 
 [dependencies]
 staggrid = { path = "..", version = "0.1.0" }
-numpy = "0.15.0"
-pyo3 = { version = "0.15.1", features = ["extension-module"] }
+numpy = "0.16"
+pyo3 = { version = "0.16", features = ["extension-module"] }
